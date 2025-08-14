@@ -14,8 +14,11 @@ def home():
     return "Hello, user!"
 
 
-@user_bp.route('/register', methods=['POST'])
+@user_bp.route('/register', methods=['POST', 'OPTIONS'])
 def register_user():
+    if request.method == 'OPTIONS':
+        return '', 200
+        
     data = request.json
     if not all(key in data for key in ('username', 'email', 'password')):
         return jsonify({'error': 'All fields are required'}), 400
@@ -24,8 +27,11 @@ def register_user():
     response = auth_service.register_user(data['username'], data['email'], data['password'])
     return jsonify(response), 200 if response['status'] == 'success' else 400
 
-@user_bp.route('/login', methods=['POST'])
+@user_bp.route('/login', methods=['POST', 'OPTIONS'])
 def login_user():
+    if request.method == 'OPTIONS':
+        return '', 200
+        
     data = request.json
     if not all(key in data for key in ('email', 'password')):
         return jsonify({'error': 'Email and password are required'}), 400

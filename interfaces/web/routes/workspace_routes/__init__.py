@@ -9,13 +9,17 @@ workspace_bp = Blueprint('workspace', __name__)
 # 註冊 analysis 子路由
 workspace_bp.register_blueprint(analysis_bp, url_prefix='/<workspace_id>/analysis')
 
-@workspace_bp.route('/', methods=['GET'])
+@workspace_bp.route('/', methods=['GET', 'OPTIONS'])
 def get_workspaces():
+    if request.method == 'OPTIONS':
+        return '', 200
     workspaces = workspace_service.get_workspaces()
     return jsonify([workspace.to_dict() for workspace in workspaces]), 200
 
-@workspace_bp.route('/', methods=['POST'])
+@workspace_bp.route('/', methods=['POST', 'OPTIONS'])
 def create_workspace():
+    if request.method == 'OPTIONS':
+        return '', 200
     data = request.json
     if 'name' not in data:
         return jsonify({'error': 'Workspace name is required'}), 400
@@ -24,8 +28,10 @@ def create_workspace():
     response, status_code = workspace_service.create_workspace(data['name'])
     return jsonify(response), status_code
 
-@workspace_bp.route('/<workspace_id>', methods=['GET'])
+@workspace_bp.route('/<workspace_id>', methods=['GET', 'OPTIONS'])
 def get_workspace(workspace_id):
+    if request.method == 'OPTIONS':
+        return '', 200
     workspace = workspace_service.get_workspace(workspace_id)
     if workspace:
         return jsonify(workspace.to_dict()), 200
