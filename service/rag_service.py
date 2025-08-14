@@ -82,11 +82,17 @@ class RAGService:
     def ask_question(self, query, n_results=3, use_ai=True):
         """Ask a question and get AI-powered response"""
         try:
+            print(f"RAG Service - Received query: {query}")
+            print(f"RAG Service - use_ai: {use_ai}, n_results: {n_results}")
+            
             # First search for relevant documents
             search_result = self.search_documents(query, n_results)
             
             if not search_result["success"]:
+                print(f"RAG Service - Search failed: {search_result}")
                 return search_result
+            
+            print(f"RAG Service - Found {len(search_result['documents'])} documents")
             
             # If AI is disabled, just return search results
             if not use_ai:
@@ -94,6 +100,7 @@ class RAGService:
             
             # Prepare context for AI
             context_docs = [doc["content"] for doc in search_result["documents"]]
+            print(f"RAG Service - Context docs length: {len(context_docs)}")
             
             system_prompt = f"""
 You are a helpful assistant. You answer questions about federated learning analysis and research data.
@@ -110,6 +117,7 @@ The data:
 
 """
             
+            print("RAG Service - Calling OpenAI API...")
             # Call OpenAI API
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o-mini",  # Using cheaper model
@@ -120,16 +128,19 @@ The data:
             )
             
             ai_response = response.choices[0].message.content
+            print(f"RAG Service - AI response: {ai_response}")
             
             return {
                 "success": True,
                 "query": query,
-                "ai_response": ai_response,
+                "response": ai_response,  # 修改字段名稱為前端期望的 response
+                "ai_response": ai_response,  # 保持向後兼容
                 "source_documents": search_result["documents"],
                 "total_sources": len(search_result["documents"])
             }
             
         except Exception as e:
+            print(f"RAG Service - Error: {str(e)}")
             return {
                 "success": False,
                 "message": f"RAG error: {str(e)}",

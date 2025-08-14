@@ -20,6 +20,28 @@ class WorkspaceService:
     def get_workspaces(self):
         return self.repo.get_workspaces()
 
+    def get_user_workspaces(self, user_id):
+        """批量獲取用戶的所有工作區詳情"""
+        from service.auth_service import AuthService
+        auth_service = AuthService()
+        
+        # 獲取用戶的工作區ID列表
+        user_response = auth_service.get_user(user_id)
+        if not user_response or user_response.get('status') != 'success':
+            return []
+        
+        user_data = user_response.get('user', {})
+        workspace_ids = user_data.get('workspace_ids', [])
+        
+        # 批量獲取工作區詳情
+        workspaces = []
+        for workspace_id in workspace_ids:
+            workspace = self.repo.get_workspace(workspace_id)
+            if workspace:
+                workspaces.append(workspace.to_dict())
+        
+        return workspaces
+
     def create_workspace(self, name):
         if self.repo.workspace_name_exists(name):
             return {"status": "error", "message": "The name already exists"}, 400

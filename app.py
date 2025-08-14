@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # 更完整的 CORS 配置
 CORS(app, 
-     origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"],
+     origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://127.0.0.1:5173", "http://127.0.0.1:5174", "http://127.0.0.1:5175"],
      allow_headers=["Content-Type", "Authorization"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      supports_credentials=True)
@@ -33,7 +33,7 @@ def handle_options_request():
     if request.method == 'OPTIONS':
         response = make_response()
         origin = request.headers.get('Origin')
-        allowed_origins = ["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"]
+        allowed_origins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://127.0.0.1:5173", "http://127.0.0.1:5174", "http://127.0.0.1:5175"]
         
         if origin in allowed_origins:
             response.headers['Access-Control-Allow-Origin'] = origin

@@ -27,8 +27,10 @@ class WorkspaceRepo:
 
     def create_workspace(self, id, name):
         data = self.db.add_workspace(id, name)
-        if data and data.inserted_id:
+        # 檢查是否成功插入（MongoDB InsertOneResult 對象有 inserted_id 屬性）
+        if hasattr(data, 'inserted_id') and data.inserted_id:
             return Workspace(workspace_id=id, name=name, files=[], created_at=datetime.now())
+        # 如果返回的是錯誤字典，返回 None
         return None
 
     def update_workspace(self, workspace):

@@ -165,6 +165,46 @@ def clear_chat_history():
             "error": f"Server error: {str(e)}"
         }), 500
 
+@simple_rag_bp.route('/ask', methods=['POST', 'OPTIONS'])
+@cross_origin()
+def ask_question():
+    """Ask a question and get AI-powered response (simple version without authentication)"""
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    try:
+        data = request.get_json()
+        
+        if not data or 'query' not in data:
+            return jsonify({
+                "success": False,
+                "message": "Query is required"
+            }), 400
+        
+        query = data['query'].strip()
+        if not query:
+            return jsonify({
+                "success": False,
+                "message": "Query cannot be empty"
+            }), 400
+        
+        n_results = data.get('n_results', 3)
+        use_ai = data.get('use_ai', True)
+        
+        # Validate n_results
+        if not isinstance(n_results, int) or n_results < 1 or n_results > 10:
+            n_results = 3
+        
+        result = rag_service.ask_question(query, n_results, use_ai)
+        
+        return jsonify(result), 200 if result["success"] else 400
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Server error: {str(e)}"
+        }), 500
+
 @simple_rag_bp.route('/search', methods=['POST', 'OPTIONS'])
 @cross_origin()
 def search():

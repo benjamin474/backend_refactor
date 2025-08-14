@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import re
 from service.workspace_service import WorkspaceService
 from .analysis_routes import analysis_bp  # 引入 analysis_routes
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 workspace_service = WorkspaceService()
 workspace_bp = Blueprint('workspace', __name__)
@@ -15,6 +16,17 @@ def get_workspaces():
         return '', 200
     workspaces = workspace_service.get_workspaces()
     return jsonify([workspace.to_dict() for workspace in workspaces]), 200
+
+@workspace_bp.route('/user/<user_id>', methods=['GET', 'OPTIONS'])
+def get_user_workspaces(user_id):
+    """批量獲取用戶的所有工作區詳情"""
+    if request.method == 'OPTIONS':
+        return '', 200
+    try:
+        workspaces = workspace_service.get_user_workspaces(user_id)
+        return jsonify(workspaces), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @workspace_bp.route('/', methods=['POST', 'OPTIONS'])
 def create_workspace():
